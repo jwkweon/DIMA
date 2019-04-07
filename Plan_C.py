@@ -11,7 +11,8 @@ from sklearn.cluster import KMeans
 
 
 def random_crop(img):
-    x, y = 0, 0 #:::random 으로 바꾸기
+    randint = np.random.randint(0, 400, size=2)
+    x, y = randint[0], randint[1]#:::random 으로 바꾸기 -> 완료
     crop_img = img[x : x + 256 , y : y + 256]
     return crop_img
 
@@ -63,14 +64,7 @@ def image_color_cluster(image, k = 4):
 
     return color_list
 
-
-def main():
-    image_path = "./CAMO/DESSERT/2.1.jpg"
-    img = imread(image_path)
-    img = random_crop(img)
-    color_list = image_color_cluster(img)
-
-    #print("##########Color_list###########", color_list[0][1], color_list[:])
+def color2gray(img):
     img_Gray = img.copy()
     gray_img = img.sum(axis = 2) / 3
 
@@ -80,12 +74,45 @@ def main():
             for k in range(3):
                 img_Gray[i, j, k] = gray_img[i, j]
 
+    return img_Gray
+
+def rgb_mapping(img, c_list, g_list):
+    recons_img = img.copy()
+    k = 0
+    for i in range(256):
+        for j in range(256):
+            temp = []
+            for n in range(4):
+                if recons_img[i, j, k] >= g_list[n][k] :
+                    dif = abs(recons_img[i, j, k] - g_list[n][k])
+                else:
+                    dif = abs(g_list[n][k] - recons_img[i, j, k])
+                temp.append(dif)
+
+            for l, m in enumerate(temp):
+                if m == min(temp):
+                    recons_img[i, j, :] = c_list[l]
+                    break
+
+    return recons_img
+
+def main():
+    image_path = "./CAMO/DESSERT/2.16.jpg"
+    img = imread(image_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = random_crop(img)
+
+    color_list = image_color_cluster(img)
+    img_Gray = color2gray(img)
     gray_color_list = image_color_cluster(img_Gray)
 
-    print(gray_color_list, '\n',color_list)
 
+    gray_color_list[1][0] - gray_color_list[2][0]
+    print(gray_color_list, '\n' ,color_list)
 
-    cv2.imshow('iddd',img_Gray)
+    result_img = rgb_mapping(img_Gray, color_list, gray_color_list)
+
+    cv2.imshow('iddd',result_img)
     cv2.waitKey(0)
 
 
