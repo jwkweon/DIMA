@@ -115,14 +115,20 @@ def main():
         color_img = imread("./in/" + i)
         color_img = cv2.cvtColor(color_img, cv2.COLOR_BGR2RGB)
         height, width, _ = color_img.shape
-        color_img = random_crop(color_img, 0, height, width)
+        if height != 512:
+            h = 512
+            w = width * h // height
+            dst = cv2.resize(color_img, dsize=(w, h), interpolation=cv2.INTER_AREA)
 
+        color_img = random_crop(color_img, 0, height, width)
         color_list = image_color_cluster(color_img)
 
         result_img = rgb_mapping(img_Gray, color_list, gray_color_list)
 
         cv2.destroyAllWindows()
-        cv2.imshow('demo' + i ,result_img)
+        cv2.imshow('demo' + i , dst)
+        cv2.imshow('result' + i , result_img)
+
         cv2.waitKey(1000)
 
 
