@@ -8,9 +8,9 @@ from sklearn.cluster import KMeans
 
 def random_crop(img, rand, height, width):
     if rand == 1:
-        randint = np.random.randint(0, 400, size=2)
+        randint = np.random.randint(0, 300, size=2)
         x, y = randint[0], randint[1]
-        crop_img = img[x : x + 256 , y : y + 256]
+        crop_img = img[x : x + 512 , y : y + 512]
     else:
         x, y = width, height
         crop_img = img[x // 2 :  x, y // 2 : y]
@@ -68,10 +68,10 @@ def image_color_cluster(image, k = 4):
 def color2gray(img):
     img_Gray = img.copy()
     gray_img = img.sum(axis = 2) / 3
+    height, width = gray_img.shape
 
-
-    for i in range(256):
-        for j in range(256):
+    for i in range(width):
+        for j in range(height):
             for k in range(3):
                 img_Gray[i, j, k] = gray_img[i, j]
 
@@ -79,9 +79,11 @@ def color2gray(img):
 
 def rgb_mapping(img, c_list, g_list):
     recons_img = img.copy()
+    height, width, _ = recons_img.shape
+
     k = 0
-    for i in range(256):
-        for j in range(256):
+    for i in range(width):
+        for j in range(height):
             temp = []
             for n in range(4):
                 if recons_img[i, j, k] >= g_list[n][k] :
