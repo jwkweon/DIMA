@@ -4,6 +4,7 @@ import os
 from scipy.misc import imread, imsave
 import argparse
 from sklearn.cluster import KMeans
+from PIL import Image
 
 
 def random_crop(img, rand, height, width):
@@ -124,11 +125,11 @@ def main():
         color_list = image_color_cluster(color_img)
 
         result_img = rgb_mapping(img_Gray, color_list, gray_color_list)
+        result = img_concat = cv2.hconcat([dst, result_img])
+
 
         cv2.destroyAllWindows()
-        cv2.imshow('demo' + i , dst)
-        cv2.imshow('result' + i , result_img)
-
+        cv2.imshow('result' + i , result)
         cv2.waitKey(1000)
 
 
