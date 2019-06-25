@@ -18,8 +18,16 @@ def main():
     img1 = img_gray.copy()
     height, width, _ = img.shape
 
+    n_size = width // 140
+    if n_size % 2 == 0:
+        n_size += 1
+    else:
+        pass
+
+    print(height, width, n_size)
+
     img1 = cv2.fastNlMeansDenoising(img_gray, None, 15, 7, 21)
-    thr1 = cv2.adaptiveThreshold(img1, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 13, 20)
+    thr1 = cv2.adaptiveThreshold(img1, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, n_size, 15) #default = 11
 
 
     height_ratio = height
@@ -52,7 +60,7 @@ def main():
         box = i.split(' ')
         h_d, w_d = abs(int(box[2]) - int(box[4])), abs(int(box[1]) - int(box[3]))
 
-        img = cv2.rectangle(img, (int(box[1]), height - int(box[2])), (int(box[3]), height - int(box[4])), (0, 255, 0), -1)
+        img = cv2.rectangle(img, (int(box[1]), height - int(box[2])), (int(box[3]), height - int(box[4])), (0, 255, 0), 1)
         '''
         #밑은 박스의 픽셀 크기가 400이 넘으면 박스를 그리지 않음#
         if h_d != 0 and w_d != 0 and h_d * w_d < 8000:
