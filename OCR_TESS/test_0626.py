@@ -7,6 +7,20 @@ import matplotlib.pyplot as plt
 import pytesseract
 import pandas as pd
 
+class Output:
+    BYTES = 'bytes'
+    DATAFRAME = 'data.frame'
+    DICT = 'dict'
+    STRING = 'string'
+
+def dataframe_to_list(data_frame):
+    Row_list =[]
+    df = data_frame
+
+    for i in range((df.shape[0])):
+        Row_list.append(list(df.iloc[i, :]))
+
+    return Row_list
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,7 +49,7 @@ def main():
 
     #boxes = pytesseract.image_to_boxes(img1, lang = 'kor3+eng', config="--psm 4 --oem 1 -c tessedit_char_whitelist=-01234567890XYZ:@")
     chars = pytesseract.image_to_string(img1, lang = 'kor3+eng', config="--psm 4 --oem 1 -c tessedit_char_whitelist=-01234567890XYZ:@")
-    ddd = pytesseract.image_to_data(img1, lang = 'kor3+eng', config="--psm 4 --oem 1 -c tessedit_char_whitelist=-01234567890XYZ:@").DATAFRAME
+    ddd = pytesseract.image_to_data(img1, lang = 'kor3+eng', output_type = Output.DATAFRAME, config="--psm 4 --oem 1 -c tessedit_char_whitelist=-01234567890XYZ:@")
 
     #image_to_osd
     cnt = 0
@@ -51,7 +65,7 @@ def main():
     res_chars = []
     res2_chars = []
 
-    print(type(chars), type(res_chars))
+    print(type(chars), type(ddd))
     for i, j in enumerate(chars):
         if j == '\n':
             if chars[i+1] == '\n':
@@ -90,16 +104,22 @@ def main():
     #print(''.join(res2_chars))
     f = open('test.txt', mode='wt', encoding='utf-8')
     f.write(''.join(chars))
-    f_data = open('test_data.txt', mode='wt', encoding='utf-8')
-    f_data.write(ddd)
+    #f_data = open('test_data.txt', mode='wt', encoding='utf-8')
+    #f_data.write(ddd)
 
     f.close()
-    f_data.close()
+    #f_data.close()
 
 
     #df = get_pandas_output()
-    #df = ddd.DATAFRAME()
-    print(df)
+    #df = pd.Panel(ddd)
+    #print(df[0])
+    #print(df[1])
+    #print(df[2])
+    list_ddd = dataframe_to_list(data_frame = ddd)
+    print(list_ddd)
+
+
 
 
 
