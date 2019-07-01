@@ -160,6 +160,10 @@ def main():
     dataframe = pytesseract.image_to_data(img1, lang = 'kor3+eng', output_type = Output.DATAFRAME, config="--psm 4 --oem 1 -c tessedit_char_whitelist=-01234567890XYZ:@")
 
     list_dataframe = dataframe_to_list(data_frame = dataframe)
+    removed = df_list_removeNan(list_dataframe)
+    topNheight_list = dflist_roi(removed)
+    cut_img = cut_roi(img = img1, axis_list = topNheight_list)
+    cv2.imwrite('line_{}'.format(filename), cut_img)
 
     print(chars)
 
