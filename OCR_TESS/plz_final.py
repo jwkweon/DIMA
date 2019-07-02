@@ -148,8 +148,18 @@ def dflist_roi(df_list):
 
     return result_list
 
+a = [11, 12, 13, 14]
+
+for i in range(len(a)):
+    print(i)
+for j in a:
+    print(i)
+
+for i, j in enumerate(a):
+    print(j)
+
 #cv2.line 부분을 지우고 h_std의 요소값(cut 할 height)별로 자르는 코드 추가필요
-def cut_roi(img, axis_list,file_name):
+def cut_roi(img, axis_list, file_name):
     height, width = img.shape
 
     x_set = [i[0] for i in axis_list]
@@ -161,13 +171,12 @@ def cut_roi(img, axis_list,file_name):
         j[2] = j[1] + j[2]
 
     h_std = []
-
     for i in range(1, len(axis)):
         cut_h = (axis[i][1] + axis[i - 1][2]) // 2
         h_std.append(cut_h)
         result = cv2.line(img, (0, cut_h), (width, cut_h), (0, 0, 0), 1)
-    cv2.imshow('result', result)
-    cv2.waitKey(0)
+    #cv2.imshow('result', result)
+    #cv2.waitKey(0)
 
     h_std.sort()
     #result = img.copy()
@@ -175,8 +184,36 @@ def cut_roi(img, axis_list,file_name):
     for i in range(len(h_std)-1):
         if h_std[i+1] - h_std[i] > 0:
             result = img[h_std[i]:h_std[i+1], 0:width]
-            #cv2.imwrite('c_{}_{}'.format(i,file_name), result)
+
             cut_img.append(result)
+
+    return cut_img
+
+def cut_roi_new(img, axis_list, file_name):
+    height, width = img.shape
+
+    axis = axis_list[:]
+    for i, j in enumerate(axis):
+        j[2] = j[1] + j[2]
+
+    #h_std = []
+    #for i in range(1, len(axis)):
+    #    cut_h_bound = (axis[i][1] + axis[i - 1][2]) // 2
+    #    h_std.append(cut_h)
+    #    result = cv2.line(img, (0, cut_h), (width, cut_h), (0, 0, 0), 1)
+    for i, j in enumerate(axis):
+        result = cv2.line(img, (0, j[1]-5), (width, j[1]-5), (0, 0, 0), 1)
+        result = cv2.line(img, (0, j[2]+5), (width, j[2]+5), (0, 0, 0), 1)
+    cv2.imshow('result', result)
+    cv2.waitKey(0)
+
+    #h_std.sort()
+    #result = img.copy()
+    cut_img = []
+    for i, j in enumerate(axis):
+        result = img[j[1]-5:j[2]+5, 0:width]
+
+        cut_img.append(result)
 
     return cut_img
 
@@ -330,7 +367,7 @@ def main():
     removed = df_list_removeNan(list_dataframe)
     topNheight_list = dflist_roi(removed)
 
-    cut_img = cut_roi(img = save_img, axis_list = topNheight_list, file_name=filename)
+    cut_img = cut_roi_new(img = save_img, axis_list = topNheight_list, file_name=filename)
 
     #잘린 이미지 하나씩 tess
     result_form = []
