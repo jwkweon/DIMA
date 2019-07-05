@@ -220,11 +220,10 @@ def img_padding(img, filename):
         width_r= int(ratio_h*WIDTH)
         background = cv2.resize(background[-1], (width_r+x_offset,50), interpolation=cv2.INTER_CUBIC)
         resized = cv2.resize(letter, (width_r,25), interpolation=cv2.INTER_AREA)
-        os.system("python sr.py --filename="+filename)
+        #추가
+        os.system("python sr.py --file="+filename)
 
         resized_h, resized_w = resized.shape
-
-
 
         for k in range(resized_h):
             for l in range(resized_w):
@@ -418,7 +417,6 @@ def main():
     stop_f = 0
     is_item = 0
     for i in cut_img:
-        cv2.imwrite('cut_{}'.format(filename), i)
         if is_item == 0:
             is_item = check_item(img = i, colon_flag = colon_std, item_flag = is_item)
             i = img_padding(img = i, filename = 'cut_{}'.format(filename))
