@@ -195,7 +195,7 @@ def cut_show(img):
     cv2.imshow('result', img)
     cv2.waitKey(0)
 
-def img_padding(img):
+def img_padding(img, filename):
     letter = img
     background = letter.copy()
     HEIGHT, WIDTH = background.shape[:2]
@@ -220,7 +220,7 @@ def img_padding(img):
         width_r= int(ratio_h*WIDTH)
         background = cv2.resize(background[-1], (width_r+x_offset,50), interpolation=cv2.INTER_CUBIC)
         resized = cv2.resize(letter, (width_r,25), interpolation=cv2.INTER_AREA)
-        os.system("python sr.py --filename="#############)
+        os.system("python sr.py --filename="+filename)
 
         resized_h, resized_w = resized.shape
 
@@ -418,12 +418,13 @@ def main():
     stop_f = 0
     is_item = 0
     for i in cut_img:
+        cv2.imwrite('cut_{}'.format(filename), i)
         if is_item == 0:
             is_item = check_item(img = i, colon_flag = colon_std, item_flag = is_item)
-            i = img_padding(img = i)
+            i = img_padding(img = i, filename = 'cut_{}'.format(filename))
             hang1, hang2, flag, stop_f = tess_roi(i, stop = stop_f)
         else:
-            i = img_padding(img = i)
+            i = img_padding(img = i, filename = 'cut_{}'.format(filename))
             hang1, hang2, flag, stop_f = tess_roi(i, stop = stop_f)
 
         res2 = add_result(input1 = hang1, input2 = hang2, flag = flag, stop = stop_f, output = result_form)
