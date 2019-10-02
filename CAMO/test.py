@@ -97,7 +97,7 @@ def create_model():
 def loss_fn(model, images, images_pattern):
     '''우선 loss_pattern 만 갖고 학습'''
     #training = True를 하면 model 정의 부분의 dropout 이 적용됨! 나머지는 영향 없음
-    G = model_test(images, images_pattern, training = True)
+    G = model(images, images_pattern)
 
     loss_pattern = tf.reduce_mean(tf.squared_difference(G, images_pattern))
     ##################################################################################
@@ -109,8 +109,68 @@ def loss_fn(model, images, images_pattern):
 
     return loss_pattern
 
+def grad(model, images, images_pattern):
+    with tf.GradientTape() as t:
+        current_loss = loss_fn(model, images, images_pattern)
+    return tape.gradient(loss, model.variables)
+
+
 def main():
-    print('main')
+    cur_dir = os.getcwd()
+
+    ckpt_dir_name = 'checkpoints'
+    model_dir_name = 'camo_test1'
+
+    checkpoint_dir = os.path.join(cur_dir, ckpt_dir_name, model_dir_name)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
+    checkpoint_prefix = os.path.join(checkpoint_dir, model_dir_name)
+
+    train_dataset = dataloader()
+    #print(train_data)
+    images_pattern = np.array(Image.open(path_dir + '/pattern.jpg'))    #pattern image load
+
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+    checkpoint = tf.train.Checkpoint(cnn=model)
+
+    model = create_model()
+    model.summary()
+    #모델 구조 시각화
+    #keras.utils.plot_model(model, 'my_first_model_with_shape_info.png', show_shapes=True)
+
+
+    print("Initial loss: {:.3f}".format(loss_fn(model, images, images_pattern)))
+
+    for epoch in range(training_epochs):
+        avg_loss = 0
+        avg_train_acc = 0
+        avg_test_acc = 0
+        train_step = 0
+        test_step = 0
+
+        for images in train_dataset:
+            grads = grad(model, images, images_pattern)
+            optimizer.apply_gradients(zip(grads, model.variables),
+                                      global_step=tf.train.get_or_create_global_step())
+            #loss 와 acc를 출력해 보기 위한 부분
+            loss = loss_fn(model, images, images, images_pattern)
+            #acc = evaluate(model, images, images, images_pattern)
+            avg_loss = avg_loss + loss
+            train_step += 1
+
+        avg_loss = avg_loss / train_step
+
+        print('Epoch:', '{}'.format(epoch + 1), 'loss =', '{:.8f}'.format(avg_loss))
+
+        checkpoint.save(file_prefix=checkpoint_prefix)
+
+    print('Learning Finished!')
+
+
+
+
+
+
 
 if __name__ == '__main__':
     main()
