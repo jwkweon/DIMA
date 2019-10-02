@@ -110,7 +110,7 @@ def loss_fn(model, images, images_pattern):
     return loss_pattern
 
 def main():
-
+    print('main')
 
 if __name__ == '__main__':
     main()
