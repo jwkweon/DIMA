@@ -130,16 +130,15 @@ def main():
     #print(train_data)
     images_pattern = np.array(Image.open(path_dir + '/pattern.jpg'))    #pattern image load
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-    checkpoint = tf.train.Checkpoint(cnn=model)
-
     model = create_model()
     model.summary()
     #모델 구조 시각화
     #keras.utils.plot_model(model, 'my_first_model_with_shape_info.png', show_shapes=True)
 
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+    checkpoint = tf.train.Checkpoint(cnn=model)
 
-    print("Initial loss: {:.3f}".format(loss_fn(model, images, images_pattern)))
+    #print("Initial loss: {:.3f}".format(loss_fn(model, images, images_pattern)))
 
     for epoch in range(training_epochs):
         avg_loss = 0
@@ -165,11 +164,6 @@ def main():
         checkpoint.save(file_prefix=checkpoint_prefix)
 
     print('Learning Finished!')
-
-
-
-
-
 
 
 if __name__ == '__main__':
