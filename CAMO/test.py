@@ -12,7 +12,7 @@ tf.enable_eager_execution()
 # Hyper Parameter
 ##################################################################################
 learning_rate = 0.001
-training_epochs = 1000
+training_epochs = 100
 
 ##################################################################################
 # Data Loader
@@ -97,7 +97,7 @@ def create_model():
 def loss_fn(model, images, images_pattern):
     '''우선 loss_pattern 만 갖고 학습'''
     #training = True를 하면 model 정의 부분의 dropout 이 적용됨! 나머지는 영향 없음
-    G = model(images, images_pattern)
+    G = model([images, images_pattern])
 
     loss_pattern = tf.reduce_mean(tf.squared_difference(G, images_pattern))
     ##################################################################################
@@ -109,10 +109,14 @@ def loss_fn(model, images, images_pattern):
 
     return loss_pattern
 
+
+##################################################################################
+# Calculate Gradient
+##################################################################################
 def grad(model, images, images_pattern):
     with tf.GradientTape() as t:
         current_loss = loss_fn(model, images, images_pattern)
-    return tape.gradient(loss, model.variables)
+    return tape.gradient(current_loss, model.variables)
 
 
 def main():
@@ -128,7 +132,8 @@ def main():
 
     train_dataset = dataloader()
     #print(train_data)
-    images_pattern = np.array(Image.open(path_dir + '/pattern.jpg'))    #pattern image load
+    images_pattern = np.array(Image.open(cur_dir + '/pattern.jpg'), np.float32) / 255.    #pattern image load
+    images_pattern = np.expand_dims(images_pattern, axis = 0)
 
     model = create_model()
     model.summary()
@@ -148,11 +153,13 @@ def main():
         test_step = 0
 
         for images in train_dataset:
+            images = np.expand_dims(images, axis = 0)
+            #print(images.shape, images_pattern.shape)
             grads = grad(model, images, images_pattern)
             optimizer.apply_gradients(zip(grads, model.variables),
-                                      global_step=tf.train.get_or_create_global_step())
+                                    global_step=tf.train.get_or_create_global_step())
             #loss 와 acc를 출력해 보기 위한 부분
-            loss = loss_fn(model, images, images, images_pattern)
+            loss = loss_fn(model, images, images_pattern)
             #acc = evaluate(model, images, images, images_pattern)
             avg_loss = avg_loss + loss
             train_step += 1
